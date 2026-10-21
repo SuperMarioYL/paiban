@@ -1,0 +1,27 @@
+{
+  "name": "courseware",
+  "layouts": {
+    "cover": 0,
+    "content": 1,
+    "section": 2,
+    "end": 5
+  },
+  "title": {
+    "font": "微软雅黑",
+    "font_size_pt": 40,
+    "first_line_indent_chars": null,
+    "line_spacing": 1.5,
+    "space_before_pt": 0,
+    "space_after_pt": 6,
+    "alignment": null
+  },
+  "body": {
+    "font": "微软雅黑",
+    "font_size_pt": 22,
+    "first_line_indent_chars": 2,
+    "line_spacing": 1.5,
+    "space_before_pt": 0,
+    "space_after_pt": 10,
+    "alignment": "just"
+  }
+}
