@@ -1,0 +1,57 @@
+{
+  "note": "fixtures/sample-longdoc.md 在无 API key 的规则切分路径下，用 courseware 模板族生成的 deck 的 OOXML 版式属性。断言对象是写进 .pptx 的属性本身；渲染结果只能在 WPS 里人工确认。",
+  "source": "fixtures/sample-longdoc.md",
+  "template": "courseware",
+  "plan_source": "rules",
+  "cover_title": "数据分析入门 · 三课时内训稿",
+  "slide_titles": [
+    "数据分析入门 · 三课时内训稿",
+    "课时一 · 先问清楚要回答什么问题",
+    "课时一 · 练习：把一句话问题写成四段",
+    "课时一 · 数据从哪来",
+    "课时二 · 把表格读成结构",
+    "课时二 · 八个常见坑",
+    "课时二 · 八个常见坑（续）",
+    "课时二 · 口径表怎么用",
+    "课时三 · 从结论到表达",
+    "课时三 · 交付前检查",
+    "课后 · 三件可以立刻做的事"
+  ],
+  "totals": {
+    "slides": 12,
+    "content_slides": 11,
+    "text_bodies": 27,
+    "paragraphs": 55,
+    "runs": 66,
+    "cjk_runs": 65,
+    "squeezed_paragraphs": 6,
+    "pictures": 0
+  },
+  "body_paragraph": {
+    "font_size_pt": 22.0,
+    "first_line_indent_chars": 2.0,
+    "indent_emu": 558800,
+    "line_spacing": 1.5,
+    "space_before_pt": 0.0,
+    "space_after_pt": 10.0,
+    "alignment": "just",
+    "ea_line_break": true,
+    "hanging_punct": true
+  },
+  "title_paragraph": {
+    "font_size_pt": 40.0,
+    "first_line_indent_chars": null,
+    "indent_emu": null,
+    "line_spacing": 1.5,
+    "space_before_pt": 0.0,
+    "space_after_pt": 6.0,
+    "alignment": null,
+    "ea_line_break": true,
+    "hanging_punct": true
+  },
+  "font_slots": {
+    "latin": "Microsoft YaHei",
+    "ea": "Microsoft YaHei",
+    "cs": "Microsoft YaHei"
+  }
+}
