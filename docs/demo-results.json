@@ -1,0 +1,52 @@
+{
+  "recorded_at": "2026-10-22",
+  "package": "paiban",
+  "version": "0.1.0",
+  "platform": "Darwin arm64 / Python 3.12.13",
+  "input": {
+    "path": "fixtures/sample-longdoc.md",
+    "bytes": 3541,
+    "kind": "中文课程稿（markdown，11 个小节）"
+  },
+  "steps": [
+    {
+      "command": "paiban build fixtures/sample-longdoc.md -o 课件.pptx --template courseware",
+      "output": "输入      fixtures/sample-longdoc.md\n模板族    courseware\n页序来源  rules（未设置 DEEPSEEK_API_KEY，按文档结构规则切分）\n页数      12（封面 1 + 内容 11）\n改写      段落 55 / run 54 / 标点挤压 14 字\n字体      别名表命中 0 / 写入默认族 54\nlint      ok — 5 项检查全过\n输出      课件.pptx"
+    },
+    {
+      "command": "paiban verify 课件.pptx",
+      "output": "文件      课件.pptx\n复核范围  只复核 .pptx 里的 OOXML 属性，不渲染、不驱动 WPS 进程\n规模      12 页 / 27 个文本容器 / 55 段 / 66 个 run\nlint      ok — 5 项检查全过\n          font_alias [ok] 65 个中文 run：65 个东亚字体槽已解析，0 个不在别名表，0 个没有东亚字体槽\n          punct_compress [ok] 6 段含连续全角标点，其中 6 段已应用挤压（负字距）\n          paragraph_layout [ok] 首行缩进：42 段达标 / 0 段未达标 / 13 段不适用；行距：55 段达标 / 0 段未达标；对齐不符 0 段\n          kinsoku [ok] 避头尾（eaLnBrk）：55 段已开启，0 段未开启\n          real_shapes [ok] 12 页中 12 页带真实占位符，图片 0 张（Paiban 生成物应为 0）\nWPS 目标版本  WPS Office 2019 及以上（含 WPS 365）\n未自动验证  以下结论只能在 WPS 里人工确认：\n          1. 本机是否装了别名表里的字体，以及 WPS 实际选中了哪个字体来渲染中文\n          2. 标点挤压与避头尾在 WPS 里的渲染结果（行首行尾半宽、禁则处理是否生效）\n          3. 在 WPS 里改字 / 复制页 / 保存之后版式是否保持（需要人工往返一次）"
+    },
+    {
+      "command": "unzip -p 课件.pptx ppt/slides/slide2.xml | grep -oE '(a:ea typeface|spcPct val|indent)=\"[^\"]*\"' | sort -u",
+      "output": "a:ea typeface=\"Microsoft YaHei\"\nindent=\"558800\"\nspcPct val=\"150000\""
+    }
+  ],
+  "artifact": {
+    "path": "课件.pptx",
+    "bytes": 50155,
+    "slides": 12,
+    "plan_source": "rules",
+    "note": "无 DEEPSEEK_API_KEY 时的规则切分路径；设置 key 后页序改由 DeepSeek 语义分段给出，版式属性不变。"
+  },
+  "demo_gif": {
+    "path": "assets/demo.gif",
+    "source_script": "docs/demo.tape",
+    "frames": 576,
+    "frame_duration_ms": 40,
+    "duration_sec": 23.04,
+    "size_px": [
+      1400,
+      660
+    ],
+    "bytes": 230081,
+    "degraded": false,
+    "note": "vhs 真实录制的终端会话：帧数与时长见上面的 frames / duration_sec，不是静态占位图。"
+  },
+  "limitations": [
+    "录制内容只有终端路径（build / verify / 复核 slide XML 属性）。",
+    "WPS 往返验收（打开 → 改字 → 加页 → 保存 → 版式不崩）需要本机装有 WPS，本仓库无法自动验证，见 deck.WPS_ROUNDTRIP_CHECKLIST。",
+    "与其它文档→deck 工具的并排对比需要先跑那个工具，未包含在本记录里。",
+    "verify 只复核 .pptx 里的 OOXML 属性，不断言任何 WPS 版本的渲染结果。"
+  ]
+}
