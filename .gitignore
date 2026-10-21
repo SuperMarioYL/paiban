@@ -28,6 +28,7 @@ htmlcov/
 
 # Generated decks from local runs
 out/
+*.pptx
 
 # Editor / OS cruft
 .idea/
