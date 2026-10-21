@@ -1,0 +1,354 @@
+{
+  "schema": 3,
+  "name": "Paiban",
+  "github": "https://github.com/SuperMarioYL/paiban",
+  "host": "paiban.lei6393.com",
+  "palette": "auto",
+  "lang": {
+    "primary": "zh",
+    "toggle": true
+  },
+  "meta": {
+    "visual_profile": "neon-particle",
+    "demo_source": "docs/demo-results.json",
+    "content_version": "v0.1.0",
+    "source_version": "v0.1.0",
+    "generated_at": "2026-10-22"
+  },
+  "hero": {
+    "eyebrow": {
+      "zh": "中文版式引擎 + WPS 原生往返",
+      "en": "Chinese typography engine + WPS-native round trip"
+    },
+    "headline": {
+      "zh": "长文档进，\n可编辑 deck 出",
+      "en": "A long document in,\nan editable deck out"
+    },
+    "sub": {
+      "zh": "一条命令把课程稿或汇报稿变成 .pptx：中文字体别名回退、标点挤压、避头尾、首行缩进 2 字符、行距 1.5，全部落在 OOXML 属性上。",
+      "en": "One command turns a course script or a report draft into a .pptx: font alias fallback, punctuation compression, kinsoku, a two-character first-line indent and 1.5 line spacing — all written as OOXML attributes."
+    },
+    "href": "#quickstart",
+    "cta": {
+      "zh": "第一次跑通",
+      "en": "Your first run"
+    },
+    "ctaGithub": {
+      "zh": "在 GitHub 查看",
+      "en": "View on GitHub"
+    }
+  },
+  "advantages": [
+    {
+      "title": {
+        "zh": "页序来自文档结构",
+        "en": "Slide order from document structure"
+      },
+      "body": {
+        "zh": "封面用文档标题，内容页标题取章节标题，要点优先取该章节的列表项（没有列表项时用正文段落），正文段落进备注当讲稿。一页最多 6 条要点，超出自动出「（续）」页，不丢内容。",
+        "en": "The cover uses the document title, each content slide is titled after its section, bullets come from that section's list items (prose when there are none), and prose paragraphs become speaker notes. At most six bullets per slide; the overflow becomes a continued slide instead of being dropped."
+      }
+    },
+    {
+      "title": {
+        "zh": "版式永远是代码",
+        "en": "Layout is always code"
+      },
+      "body": {
+        "zh": "模型只做语义分段：页序、标题、要点、备注可以交给 DeepSeek，模型不写任何 OOXML 属性。同一份输入跑两次，逐属性一致。",
+        "en": "The model only segments: slide order, titles, bullets and notes can come from DeepSeek, and it writes no OOXML attribute. Run the same input twice and every attribute is identical."
+      }
+    },
+    {
+      "title": {
+        "zh": "产物是标准 OOXML",
+        "en": "Standard OOXML output"
+      },
+      "body": {
+        "zh": "真实母版形状与占位符，没有图片兜底；不驱动 WPS 进程、不要求装插件。verify 的 real_shapes 检查会确认生成物里图片为 0 张。",
+        "en": "Real master shapes and placeholders, no image fallback. It does not drive a WPS process and needs no plugin; verify's real_shapes check confirms the deck contains zero pictures."
+      }
+    },
+    {
+      "title": {
+        "zh": "版式可以当交付闸门",
+        "en": "Layout as a delivery gate"
+      },
+      "body": {
+        "zh": "verify 全 ok 时退出码 0，出现 warn 时退出码 1，可以直接接进 CI 或交付前的闸门；把别的工具生成的 .pptx 丢进来复核，差异会显示在报告里。",
+        "en": "verify exits 0 when every check is ok and 1 on any warn, so it can gate CI or a delivery step. Point it at a .pptx produced by another tool and the differences show up in the report."
+      }
+    }
+  ],
+  "demo": {
+    "title": {
+      "zh": "真实录制的一次运行",
+      "en": "One recorded run"
+    },
+    "note": {
+      "zh": "在 Darwin arm64 / Python 3.12.13 上录制的终端会话（vhs，23.04 秒）：输入 fixtures/sample-longdoc.md（3541 字节，11 个小节），未设置 DEEPSEEK_API_KEY，页序由文档结构规则切分。",
+      "en": "A terminal session recorded on Darwin arm64 / Python 3.12.13 (vhs, 23.04 s): input fixtures/sample-longdoc.md (3541 bytes, 11 sections) with DEEPSEEK_API_KEY unset, so slide order came from document-structure rules."
+    },
+    "source": "https://github.com/SuperMarioYL/paiban/blob/main/docs/demo-results.json",
+    "steps": [
+      {
+        "label": {
+          "zh": "长文档 → deck",
+          "en": "Long document → deck"
+        },
+        "body": {
+          "zh": "12 页（封面 1 + 内容 11）；段落 55 / run 54 被改写，标点挤压 14 字，54 个 run 写入默认字体族。",
+          "en": "12 slides (1 cover + 11 content); 55 paragraphs and 54 runs rewritten, 14 punctuation glyphs compressed, 54 runs written to the default font family."
+        },
+        "image": "/assets/demo-0-light.svg",
+        "imageDark": "/assets/demo-0-dark.svg",
+        "command": "paiban build fixtures/sample-longdoc.md -o 课件.pptx --template courseware",
+        "output": "输入      fixtures/sample-longdoc.md\n模板族    courseware\n页序来源  rules（未设置 DEEPSEEK_API_KEY，按文档结构规则切分）\n页数      12（封面 1 + 内容 11）\n改写      段落 55 / run 54 / 标点挤压 14 字\n字体      别名表命中 0 / 写入默认族 54\nlint      ok — 5 项检查全过\n输出      课件.pptx"
+      },
+      {
+        "label": {
+          "zh": "版式 lint",
+          "en": "Layout lint"
+        },
+        "body": {
+          "zh": "只复核 .pptx 里的 OOXML 属性，不渲染、不驱动 WPS 进程；12 页 / 27 个文本容器 / 55 段 / 66 个 run，5 项检查全过。",
+          "en": "Reads only the OOXML attributes in the .pptx — no rendering and no WPS process; 12 slides / 27 text containers / 55 paragraphs / 66 runs, with all five checks passing."
+        },
+        "image": "/assets/demo-1-light.svg",
+        "imageDark": "/assets/demo-1-dark.svg",
+        "command": "paiban verify 课件.pptx",
+        "output": "文件      课件.pptx\n复核范围  只复核 .pptx 里的 OOXML 属性，不渲染、不驱动 WPS 进程\n规模      12 页 / 27 个文本容器 / 55 段 / 66 个 run\nlint      ok — 5 项检查全过\n          font_alias [ok] 65 个中文 run：65 个东亚字体槽已解析，0 个不在别名表，0 个没有东亚字体槽\n          punct_compress [ok] 6 段含连续全角标点，其中 6 段已应用挤压（负字距）\n          paragraph_layout [ok] 首行缩进：42 段达标 / 0 段未达标 / 13 段不适用；行距：55 段达标 / 0 段未达标；对齐不符 0 段\n          kinsoku [ok] 避头尾（eaLnBrk）：55 段已开启，0 段未开启\n          real_shapes [ok] 12 页中 12 页带真实占位符，图片 0 张（Paiban 生成物应为 0）\nWPS 目标版本  WPS Office 2019 及以上（含 WPS 365）\n未自动验证  以下结论只能在 WPS 里人工确认：\n          1. 本机是否装了别名表里的字体，以及 WPS 实际选中了哪个字体来渲染中文\n          2. 标点挤压与避头尾在 WPS 里的渲染结果（行首行尾半宽、禁则处理是否生效）\n          3. 在 WPS 里改字 / 复制页 / 保存之后版式是否保持（需要人工往返一次）"
+      },
+      {
+        "label": {
+          "zh": "读回属性",
+          "en": "Read the attributes back"
+        },
+        "body": {
+          "zh": "不用打开 WPS 也能确认版式落在属性上：东亚槽是 Microsoft YaHei，indent 是 22pt 字号下 2 字符的首行缩进，spcPct 是行距 1.5。",
+          "en": "No WPS needed to confirm the layout landed as attributes: the East Asian slot is Microsoft YaHei, indent is the two-character first-line indent at 22 pt, and spcPct is 1.5 line spacing."
+        },
+        "image": "/assets/demo-2-light.svg",
+        "imageDark": "/assets/demo-2-dark.svg",
+        "command": "unzip -p 课件.pptx ppt/slides/slide2.xml | grep -oE '(a:ea typeface|spcPct val|indent)=\"[^\"]*\"' | sort -u",
+        "output": "a:ea typeface=\"Microsoft YaHei\"\nindent=\"558800\"\nspcPct val=\"150000\""
+      }
+    ]
+  },
+  "quickstart": {
+    "title": {
+      "zh": "第一次跑通",
+      "en": "Your first run"
+    },
+    "body": {
+      "zh": "仓库自带一份真实课程稿 fixtures/sample-longdoc.md；下面这些命令就是完整的第一次路径，无 key 也能跑完，全部本地、无服务端、无数据库。需要 Python 3.12 及以上。",
+      "en": "The repo ships a real course script at fixtures/sample-longdoc.md. These commands are the whole first run — no API key needed, everything local, no server and no database. Python 3.12 or later is required."
+    },
+    "steps": [
+      {
+        "title": {
+          "zh": "从源码安装",
+          "en": "Install from source"
+        },
+        "code": "git clone https://github.com/SuperMarioYL/paiban\ncd paiban\npip install -e ."
+      },
+      {
+        "title": {
+          "zh": "长文档 → deck",
+          "en": "Long document → deck"
+        },
+        "code": "paiban build fixtures/sample-longdoc.md -o 课件.pptx --template courseware"
+      },
+      {
+        "title": {
+          "zh": "版式 lint",
+          "en": "Layout lint"
+        },
+        "code": "paiban verify 课件.pptx"
+      },
+      {
+        "title": {
+          "zh": "可选：语义分段",
+          "en": "Optional: semantic segmentation"
+        },
+        "code": "export DEEPSEEK_API_KEY=sk-...\npaiban build fixtures/sample-longdoc.md -o 课件.pptx --template courseware"
+      },
+      {
+        "title": {
+          "zh": "给已有 deck 补版式",
+          "en": "Add the layout layer to an existing deck"
+        },
+        "code": "paiban fix 外来稿.pptx -o 修好的.pptx -t report"
+      }
+    ]
+  },
+  "limitations": [
+    {
+      "zh": "WPS 往返没有被自动验证。verify 只复核 .pptx 里的 OOXML 属性，不渲染、不驱动 WPS 进程；目标区间 WPS Office 2019 及以上（含 WPS 365）是声明范围而不是实测结论。打开 → 改字 → 加页 → 保存 → 复核这五步必须在装有 WPS 的机器上人工走一遍。",
+      "en": "The WPS round trip is not verified automatically. verify reads only the OOXML attributes in the .pptx; it does not render and does not drive a WPS process. The target range — WPS Office 2019 and later, including WPS 365 — is a declared range, not a measured result. The five steps open → edit → add a slide → save → re-verify have to be done by hand on a machine with WPS installed."
+    },
+    {
+      "zh": "画布沿用 python-pptx 内置母版的 10 × 7.5 英寸（4:3）。v0.1 不支持 16:9。",
+      "en": "The canvas keeps python-pptx's built-in master size of 10 × 7.5 inches (4:3). v0.1 does not do 16:9."
+    },
+    {
+      "zh": "输入只吃 markdown / txt / docx，PDF、图片、视频不做；只做中文版式，不含日文 / 韩文的标点与版式规则。",
+      "en": "Input is markdown / txt / docx only — no PDF, images or video. The typography rules cover Chinese only; Japanese and Korean punctuation and layout rules are not included."
+    },
+    {
+      "zh": "不生成图片、数据图表、音频旁白、转场动画，也不做可视化模板编辑器与外部模板导入。",
+      "en": "No images, data charts, narration audio or transitions, and no visual template editor or external template import."
+    },
+    {
+      "zh": "DEEPSEEK_API_KEY 是可选的：不设置不报错，降级成按文档结构规则切分，只保证页序可用、不保证语义分段质量，降级原因会打印出来。",
+      "en": "DEEPSEEK_API_KEY is optional: leaving it unset is not an error — the run falls back to document-structure rules, prints the reason, and guarantees a usable slide order but not semantic quality."
+    },
+    {
+      "zh": "一页最多 6 条要点，超出自动出「（续）」页。",
+      "en": "At most six bullets per slide; the overflow becomes a continued (「（续）」) slide."
+    },
+    {
+      "zh": "v0.1 只内置 report / courseware 两个模板族，不支持导入外部模板。",
+      "en": "v0.1 ships only the report and courseware template families and does not import external templates."
+    }
+  ],
+  "scene": {
+    "kind": "neon-graph",
+    "fallback": "/assets/scene-dark.svg",
+    "fallbackLight": "/assets/scene-light.svg",
+    "caption": {
+      "zh": "首屏是示意粒子图；真实页数、改写量与属性值见下方录制运行。",
+      "en": "The hero is an illustrative particle graph; the real slide counts, rewrite totals and attribute values are in the recorded run below."
+    }
+  },
+  "story": {
+    "intro": {
+      "title": {
+        "zh": "生成之后、交付之前的那一层",
+        "en": "The layer between generation and delivery"
+      },
+      "body": {
+        "zh": "Agent 把长文档变成可编辑 deck 这件事已经成立，但生成层默认了一套拉丁字距与字体假设：中文字体要按别名回退、全角标点要挤压、段落要按中文规范给缩进和行距。这些不在生成层的职责里，于是交付动作从「生成」退回成「逐页手工重排」——字体方块、引号把行撑开、行距缩进对不齐。Paiban 接的就是这一层：一层确定性的 OOXML 改写，同一份输入跑两次，逐属性一致。",
+        "en": "Agents turning long documents into editable decks already works, but the generation layer assumes Latin letter spacing and Latin font metrics. Chinese needs alias-based font fallback, full-width punctuation has to be compressed, and paragraphs need Chinese indentation and line-spacing conventions. None of that is the generation layer's job, so delivery falls back from generating to re-laying-out every page by hand — missing glyph boxes, quotes that stretch the line, indents and line spacing that never line up. Paiban covers that layer: a deterministic OOXML rewrite where the same input produces identical attributes twice."
+      }
+    },
+    "sections": [
+      {
+        "title": {
+          "zh": "长文档怎么变成 deck",
+          "en": "How a long document becomes a deck"
+        },
+        "body": {
+          "zh": "deck.read_document 解析文档结构，deck.plan_slides 给出页序、标题、要点与备注，ooxml.emit 把它们写成真实母版形状与占位符，typography.CJKLayoutPass 再补上字体别名、标点挤压、避头尾与缩进行距。verify 复核同一批属性，fix 对已有 .pptx 跑同一套 pass。",
+          "en": "deck.read_document parses the document structure, deck.plan_slides produces the slide order, titles, bullets and notes, ooxml.emit writes them as real master shapes and placeholders, and typography.CJKLayoutPass adds font aliases, punctuation compression, kinsoku and indent/line spacing. verify reviews the same attributes, and fix runs the same pass over an existing .pptx."
+        },
+        "image": {
+          "light": "/assets/process-light.svg",
+          "dark": "/assets/process-dark.svg",
+          "alt": {
+            "zh": "长文档到 deck 的处理流程",
+            "en": "The pipeline from a long document to a deck"
+          },
+          "mobile": {
+            "light": "/assets/process-mobile-light.svg",
+            "dark": "/assets/process-mobile-dark.svg"
+          }
+        }
+      },
+      {
+        "title": {
+          "zh": "架构：一个入口，五个模块",
+          "en": "Architecture: one entry point, five modules"
+        },
+        "body": {
+          "zh": "单进程 CLI，一个可执行入口，无服务端、无数据库、无微服务。cli.py 是可执行入口（build / verify / fix），deck.py 负责文档解析、SlidePlan、模板族加载与版式复核，typography.py 是中文版式引擎（字体别名表、挤压判定、CJKLayoutPass），ooxml.py 负责 DeckIR → OOXML 以及字体槽与段落属性的低层读写，templates/*.json 是内置模板族的母版映射与版式参数。--model 与 --template 是仅有的两个可调项。",
+          "en": "A single-process CLI with one entry point — no server, no database, no microservices. cli.py is the entry point (build / verify / fix); deck.py owns document parsing, SlidePlan, template loading and layout review; typography.py is the Chinese typography engine (font alias table, compression rules, CJKLayoutPass); ooxml.py handles DeckIR → OOXML plus the low-level read/write primitives for font slots and paragraph attributes; templates/*.json hold each built-in family's master mapping and typography parameters. --model and --template are the only two knobs."
+        },
+        "image": {
+          "light": "/assets/architecture-light.svg",
+          "dark": "/assets/architecture-dark.svg",
+          "alt": {
+            "zh": "Paiban 的模块与数据流",
+            "en": "Paiban's modules and data flow"
+          },
+          "mobile": {
+            "light": "/assets/architecture-mobile-light.svg",
+            "dark": "/assets/architecture-mobile-dark.svg"
+          }
+        }
+      },
+      {
+        "title": {
+          "zh": "接进你的工作流",
+          "en": "Make it part of your workflow"
+        },
+        "body": {
+          "zh": "命令行三条命令就能跑完整条路径：build 出 deck、verify 出版式 lint、fix 给外来稿补版式。要交给 Agent 就直接装 skill/SKILL.md，之后说一句「/paiban 把这份课程稿做成课件」，Agent 会跑 build、读回页序来源（deepseek 还是降级成 rules）、跑 verify，再把告警如实念出来。页序想更贴原文语义就配一个 DEEPSEEK_API_KEY，不配也不报错。",
+          "en": "Three commands cover the whole path from the terminal: build produces the deck, verify prints the layout lint, and fix adds the layout layer to someone else's file. To hand it to an agent, install skill/SKILL.md and then just ask — the agent runs build, reads the plan source back (deepseek or the rules fallback), runs verify, and repeats the warnings as they are. Set a DEEPSEEK_API_KEY for slide order that follows the document's semantics more closely; leaving it unset is not an error."
+        },
+        "image": {
+          "light": "/assets/integrations-light.svg",
+          "dark": "/assets/integrations-dark.svg",
+          "alt": {
+            "zh": "命令、Agent Skill、模板族与 WPS 之间的接入关系",
+            "en": "How the commands, the agent skill, the template families and WPS connect"
+          },
+          "mobile": {
+            "light": "/assets/integrations-mobile-light.svg",
+            "dark": "/assets/integrations-mobile-dark.svg"
+          }
+        }
+      }
+    ],
+    "details": [
+      {
+        "title": {
+          "zh": "配置",
+          "en": "Configuration"
+        },
+        "body": {
+          "zh": "两个环境变量：DEEPSEEK_API_KEY 启用 DeepSeek 语义分段（不设置则按文档结构规则切分），DEEPSEEK_BASE_URL 指向 OpenAI 兼容网关（缺省 https://api.deepseek.com）。模板族是 JSON，同时带母版 / 占位符映射与版式参数：layouts 的值是母版 slide_layout 序号，title / body 的键就是版式参数字段，字段为 null 表示不写该属性、保留母版继承。",
+          "en": "Two environment variables: DEEPSEEK_API_KEY enables DeepSeek semantic segmentation (unset → rule-based splitting), and DEEPSEEK_BASE_URL points at an OpenAI-compatible gateway (default https://api.deepseek.com). A template family is a JSON file holding both the master/placeholder mapping and the typography parameters: layouts values are master slide_layout indices, the keys under title / body are the typography parameter fields, and null means \"do not write this attribute, keep the master's inheritance\"."
+        },
+        "code": "{\n  \"name\": \"courseware\",\n  \"layouts\": { \"cover\": 0, \"content\": 1, \"section\": 2, \"end\": 5 },\n  \"title\": { \"font\": \"微软雅黑\", \"font_size_pt\": 40, \"first_line_indent_chars\": null,\n             \"line_spacing\": 1.5, \"space_before_pt\": 0, \"space_after_pt\": 6, \"alignment\": null },\n  \"body\":  { \"font\": \"微软雅黑\", \"font_size_pt\": 22, \"first_line_indent_chars\": 2,\n             \"line_spacing\": 1.5, \"space_before_pt\": 0, \"space_after_pt\": 10, \"alignment\": \"just\" }\n}"
+      },
+      {
+        "title": {
+          "zh": "三条命令",
+          "en": "The three commands"
+        },
+        "body": {
+          "zh": "build 输入 .md / .markdown / .txt / .docx，-o 缺省与输入同名换后缀，--template 只接受 report（汇报，缺省）或 courseware（课件），--model 缺省 deepseek-chat。verify 不带 -t 时按内置中文版式规范判，带 -t 时按某个模板族的版式参数判期望值。fix 对已有 .pptx 跑同一套 pass，就地改写或另存，文本内容一个字符都不改。",
+          "en": "build accepts .md / .markdown / .txt / .docx; -o defaults to the input name with a .pptx suffix, --template takes only report (the default) or courseware, and --model defaults to deepseek-chat. verify without -t judges against the built-in Chinese typography spec, and with -t against one template family's parameters. fix runs the same pass over an existing .pptx, in place or to a new path, without changing one character of text."
+        },
+        "code": "paiban build 课程稿.md -o 课件.pptx --template courseware\npaiban verify 课件.pptx -t courseware\npaiban fix 外来稿.pptx -o 修好的.pptx -t report"
+      },
+      {
+        "title": {
+          "zh": "中文版式规则落在哪里",
+          "en": "Where the Chinese typography rules land"
+        },
+        "body": {
+          "zh": "字体别名回退解析别名表后写 <a:latin> <a:ea> <a:cs> 三个字体槽，别名表外的字体保留拉丁槽、只补东亚槽；标点挤压把 run 拆成多段，给被挤压的段写 <a:rPr spc> 负字距；避头尾用 <a:pPr eaLnBrk=\"1\"> 打开东亚换行与禁则、<a:pPr hangingPunct=\"1\"> 允许行尾标点悬挂，断行位置交给渲染器；段落版式写首行缩进（按段落字号换算成 <a:pPr indent>，DrawingML 没有「字符」单位）、行距 1.5 与两端对齐。",
+          "en": "Font alias fallback resolves the alias table into the three slots <a:latin> <a:ea> <a:cs>; a font outside the table keeps its Latin slot and only gets an East Asian slot. Punctuation compression splits the run into segments and gives the compressed segments a negative <a:rPr spc>. Kinsoku uses <a:pPr eaLnBrk=\"1\"> to enable East Asian line breaking and kinsoku and <a:pPr hangingPunct=\"1\"> to let punctuation hang past the line end, leaving break positions to the renderer. Paragraph layout writes the first-line indent (converted to <a:pPr indent> from the paragraph's font size, since DrawingML has no \"character\" unit), 1.5 line spacing and justified alignment."
+        }
+      }
+    ]
+  },
+  "cta": {
+    "headline": {
+      "zh": "装上，跑一次，读属性。",
+      "en": "Install it, run it, read the attributes."
+    },
+    "button": {
+      "zh": "在 GitHub 查看源码",
+      "en": "Read the source on GitHub"
+    }
+  },
+  "footer": {
+    "tag": {
+      "zh": "中文版式引擎 + WPS 原生往返。MIT 开源。",
+      "en": "A Chinese typography engine plus a WPS-native round trip. MIT-licensed."
+    }
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "mode": "auto",
+  "id": "56c2e6-6a85e7-acf6ed-c762d828d33d",
+  "identity": "https://github.com/supermarioyl/paiban",
+  "primary": "#56c2e6",
+  "secondary": "#6a85e7",
+  "highlight": "#acf6ed",
+  "dark": {
+    "bg": "#050b12",
+    "panel": "#0c151f",
+    "code": "#0a141d",
+    "ink": "#eefdfb",
+    "muted": "#95b2c4",
+    "line": "#173341",
+    "primary": "#56c2e6",
+    "secondary": "#6a85e7",
+    "highlight": "#acf6ed",
+    "accent": "#56c2e6",
+    "buttonStart": "#397f97",
+    "buttonEnd": "#5b72c5",
+    "buttonText": "#ffffff"
+  },
+  "light": {
+    "bg": "#f9fdfe",
+    "panel": "#f7fcfe",
+    "code": "#f3fbfd",
+    "ink": "#132530",
+    "muted": "#557488",
+    "line": "#cbecf7",
+    "primary": "#377b92",
+    "secondary": "#586fc0",
+    "highlight": "#567a76",
+    "accent": "#377b92",
+    "buttonStart": "#397f97",
+    "buttonEnd": "#5b72c5",
+    "buttonText": "#ffffff"
+  }
+}
