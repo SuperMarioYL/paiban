@@ -10,6 +10,7 @@
 
 from __future__ import annotations
 
+import json
 from pathlib import Path
 from typing import Annotated, NoReturn, Optional
 
@@ -89,17 +90,28 @@ def build_command(
 def verify_command(
     path: DeckArg,
     template: VerifyTemplateOption = None,
+    json_output: Annotated[
+        bool,
+        typer.Option(
+            "--json",
+            help="输出机器可读的 JSON 报告（stdout 只有 JSON，退出码不变）",
+        ),
+    ] = False,
 ) -> None:
     """复核 .pptx 里的中文版式属性，出 lint 报告。
 
     只复核 OOXML 属性，不渲染、不驱动 WPS 进程。所有 check 都是 ``ok`` 时退出码 0；
-    出现 ``warn`` 时退出码 1，方便接进 CI 或交付前的闸门。
+    出现 ``warn`` 时退出码 1，方便接进 CI 或交付前的闸门。``--json`` 把同一份报告
+    输出成 JSON（字段见 ``deck.LintReport.to_dict``），退出码语义不变。
     """
     try:
         report = deck.verify(path, template=template)
     except ValueError as error:
         _fail(error)
-    _print_verify(report)
+    if json_output:
+        typer.echo(json.dumps(report.to_dict(), ensure_ascii=False, indent=2))
+    else:
+        _print_verify(report)
     if not report.ok:
         raise typer.Exit(code=_EXIT_LINT_WARN)
 

@@ -87,9 +87,10 @@ def read_document(path: str | Path) -> DocOutline:
 # --------------------------------------------------------------------------- #
 
 _ATX_HEADING = re.compile(r"^(#{1,6})\s+(.*)$")
-# 纯文本（.txt）没有 markdown 语法，用中文常见的编号行当章节标题。
+# 纯文本（.txt）没有 markdown 语法，用中文常见的编号行当章节标题（一、 / 1、）。
+# ASCII 的 `1.` / `1)` 是列表标记，归 _BULLET 管，不当章节标题。
 _PLAIN_CHAPTER = re.compile(r"^第[一二三四五六七八九十百零〇0-9]+[讲章节课篇部分]\s*\S")
-_PLAIN_SECTION = re.compile(r"^(?:[一二三四五六七八九十]+[、.．]|\d+[、.．])\s*\S")
+_PLAIN_SECTION = re.compile(r"^(?:[一二三四五六七八九十]+[、.．]|\d+[、．])\s*\S")
 _PLAIN_HEADING_MAX_CHARS = 40
 _BULLET = re.compile(r"^([ \t]*)([-*+]|\d+[.)])[ \t]+(.*)$")
 _HORIZONTAL_RULE = re.compile(r"^([-*_])\1{2,}$")
@@ -315,6 +316,8 @@ def plan_slides(
     ``client`` 给定时用它；否则读 ``DEEPSEEK_API_KEY`` 自建 OpenAI 兼容客户端；都没有
     key 就直接规则切分。模型调用失败（网络、鉴权、返回体解析）同样降级为规则切分，
     但原因会写进 ``SlidePlan.fallback_reason``。
+
+    两条来源都过 ``_paginate``：每页要点上限是页序方案的规则，不是某一条来源的细节。
     """
     client = client or _default_client()
     if client is None:
@@ -323,7 +326,9 @@ def plan_slides(
         slides = _plan_with_deepseek(outline, client, model)
     except Exception as error:  # LLM 边界：网络 / 鉴权 / 返回体都可能失败，一律降级
         return _rules_plan(outline, f"DeepSeek 调用失败，按文档结构规则切分：{error}")
-    return SlidePlan(slides=slides, source=PLAN_SOURCE_DEEPSEEK, model=model)
+    return SlidePlan(
+        slides=_paginate(slides), source=PLAN_SOURCE_DEEPSEEK, model=model
+    )
 
 
 def _default_client() -> OpenAI | None:
@@ -336,7 +341,7 @@ def _default_client() -> OpenAI | None:
 
 def _rules_plan(outline: DocOutline, reason: str) -> SlidePlan:
     return SlidePlan(
-        slides=_plan_with_rules(outline),
+        slides=_paginate(_plan_with_rules(outline)),
         source=PLAN_SOURCE_RULES,
         fallback_reason=reason,
     )
@@ -434,10 +439,18 @@ def _plan_with_rules(outline: DocOutline) -> tuple[ooxml.Slide, ...]:
         if not bullets and not notes and section.title == outline.title:
             # 文档标题既是封面又是章节：没内容就不用再出一页
             continue
-        for index, chunk in enumerate(_chunk(bullets)):
-            title = section.title if index == 0 else f"{section.title}{CONTINUATION_SUFFIX}"
-            slides.append(_slide(title, chunk, notes if index == 0 else ""))
+        slides.append(_slide(section.title, bullets, notes))
     return tuple(slides)
+
+
+def _paginate(slides: Sequence[ooxml.Slide]) -> tuple[ooxml.Slide, ...]:
+    """按每页要点上限分页；超出的部分出「（续）」页，规则切分与模型分段都走这里。"""
+    paginated: list[ooxml.Slide] = []
+    for slide in slides:
+        for index, chunk in enumerate(_chunk(slide.bullets)):
+            title = slide.title if index == 0 else f"{slide.title}{CONTINUATION_SUFFIX}"
+            paginated.append(_slide(title, chunk, slide.notes if index == 0 else ""))
+    return tuple(paginated)
 
 
 def _section_content(section: _Section) -> tuple[tuple[ooxml.Bullet, ...], str]:
@@ -833,18 +846,28 @@ def _lint_run(run: CT_RegularTextRun, counts: _LintCounts) -> None:
 
 def _lint_punct(paragraph: CT_TextParagraph, counts: _LintCounts) -> None:
     paragraph_text = ooxml.paragraph_text_with_runs(paragraph)
-    if not any(typography.squeeze_flags(paragraph_text.text)):
+    flags = typography.squeeze_flags(paragraph_text.text)
+    if not any(flags):
         return
     counts.punct_paragraphs += 1
-    if _has_squeezed_run(paragraph):
+    if not _has_unsqueezed_punct(paragraph_text, flags):
         counts.punct_applied += 1
 
 
-def _has_squeezed_run(paragraph: CT_TextParagraph) -> bool:
-    for run in ooxml.paragraph_runs(paragraph):
-        rPr = run.find(_A_RPR)
+def _has_unsqueezed_punct(
+    paragraph_text: ooxml.ParagraphText, flags: list[bool]
+) -> bool:
+    """承载可挤压标点的 run 里，有没有漏写负字距的。
+
+    段落别处存在负字距不算数：只认真正含连续全角标点的那几个 run，
+    否则 verify 会把未挤压的稿子判成 ok。
+    """
+    for span in paragraph_text.spans:
+        if not any(flags[span.start : span.end]):
+            continue
+        rPr = span.run.find(_A_RPR)
         spacing = None if rPr is None else rPr.get("spc")
-        if spacing is not None and int(spacing) < 0:
+        if spacing is None or int(spacing) >= 0:
             return True
     return False
 

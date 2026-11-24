@@ -142,17 +142,24 @@ paiban build 课程稿.md -o 课件.pptx --template courseware
 ```bash
 paiban verify 课件.pptx                 # 按内置中文版式规范判
 paiban verify 课件.pptx -t courseware   # 按某个模板族的版式参数判期望值
+paiban verify 课件.pptx --json          # 输出机器可读的 JSON 报告
 ```
 
 | check | 看什么 | 出现 `warn` 说明 |
 | --- | --- | --- |
 | `font_alias` | 中文 run 的东亚字体槽 | 有中文 run 没有东亚字体槽，或槽里的字体不在别名表 |
-| `punct_compress` | 含连续全角标点的段落 | 该挤压的段落没有负字距 |
+| `punct_compress` | 含连续全角标点的段落 | 该挤压的标点没有负字距（段落里别处的负字距不算） |
 | `paragraph_layout` | 首行缩进 / 行距 / 对齐 | 缩进不是 2 字符、行距不是 1.5、或对齐与模板不符 |
 | `kinsoku` | `eaLnBrk` | 段落没有显式打开东亚换行与禁则 |
 | `real_shapes` | 占位符与图片 | 有页面没有占位符，或生成物里出现了图片 |
 
 全部 `ok` 时退出码 0，出现 `warn` 时退出码 1，可以直接接进 CI 或交付前的闸门。把别的工具生成的 `.pptx` 丢进来复核一次，差异会直接显示在报告里。
+
+`--json` 输出同一份报告的机器可读版本（`path` / `scope` / 各项计数 / `ok` / `findings` / `wps_unverified`），stdout 只有 JSON，退出码语义不变：
+
+```bash
+paiban verify 课件.pptx --json | jq -e .ok
+```
 
 ### `paiban fix`：给已有 deck 补版式
 
@@ -232,7 +239,7 @@ flowchart TB
 }
 ```
 
-`layouts` 的值是母版 `slide_layout` 序号；`title` / `body` 的键就是版式参数字段，缺省项走默认值，字段为 `null` 表示不写该属性、保留母版继承。完整 schema 见 `deck.load_template()` 的 docstring。v0.1 只内置这两个模板族，不支持导入外部模板。
+`layouts` 的值是母版 `slide_layout` 序号；`title` / `body` 的键就是版式参数字段，缺省项走默认值，字段为 `null` 表示不写该属性、保留母版继承。完整 schema 见 `deck.load_template()` 的 docstring。目前只内置这两个模板族，不支持导入外部模板。
 
 ## <img src="https://api.iconify.design/tabler/currency-yen.svg?color=%236b7280" width="20" height="20" alt=""> 付费
 
@@ -247,22 +254,22 @@ flowchart TB
 | 单族授权 | ¥299 / 族 |
 | 全家族授权（个人 / 小机构） | ¥999 |
 
-v0.1 没有账号体系也没有在线支付，所以走**收款即交付**：在面包多 / 爱发电 / 知识星球下单，微信或支付宝收款，交付模板族 zip + 一份激活说明（放进 `src/paiban/templates/` 就能用 `--template` 调用）。企业内训与培训机构是第一批目标用户，按席或按项目报价请开一个 issue 说明场景。
+目前没有账号体系也没有在线支付，所以走**收款即交付**：在面包多 / 爱发电 / 知识星球下单，微信或支付宝收款，交付模板族 zip + 一份激活说明（放进 `src/paiban/templates/` 就能用 `--template` 调用）。企业内训与培训机构是第一批目标用户，按席或按项目报价请开一个 issue 说明场景。
 
 ### 2. 托管按次（v0.3，尚未上线）
 
-不想装环境、不想配 key 的讲师与机构，可以把长文档传上去、拿一份 WPS 原生可编辑的 `.pptx` 回来。计划价格 ¥2 / 份，讲师 ¥99 / 月，机构 ¥99 / 席 / 月；走阿里云函数计算 + 微信支付。**现在还没有这个东西**——v0.1 只有本地 CLI，托管层上线前唯一能付钱的地方是模板族包。
+不想装环境、不想配 key 的讲师与机构，可以把长文档传上去、拿一份 WPS 原生可编辑的 `.pptx` 回来。计划价格 ¥2 / 份，讲师 ¥99 / 月，机构 ¥99 / 席 / 月；走阿里云函数计算 + 微信支付。**现在还没有这个东西**——目前只有本地 CLI，托管层上线前唯一能付钱的地方是模板族包。
 
 ## <img src="https://api.iconify.design/tabler/map-2.svg?color=%236b7280" width="20" height="20" alt=""> 路线图
 
-- **v0.1（当前）** — 中文版式引擎落到 OOXML 属性上、长文档 → deck、WPS 往返验收清单、双语 README、Agent Skill，golden 属性回归全绿。
-- **v0.2** — 更多模板族；按 WPS 版本差异补齐标点挤压规则；`verify` 增加机器可读输出（JSON），方便接进交付流水线。
-- **v0.3** — 托管按次：上传长文 → WPS 原生可编辑 `.pptx`，含账号与在线支付。
+- **v0.1** — 中文版式引擎落到 OOXML 属性上、长文档 → deck、WPS 往返验收清单、双语 README、Agent Skill，golden 属性回归全绿。
+- **v0.2（当前）** — 修三个实测缺陷：模型分段路径也按每页 6 条要点分页、`.txt` 里的编号列表不再被当成章节标题、`verify` 的标点挤压检查只认真正承载标点的 run；`verify --json` 输出机器可读报告，接进交付流水线；录制产物与站点 meta 的版本跟 `pyproject.toml` 锁步。
+- **v0.3** — 更多模板族；按 WPS 版本差异补齐标点挤压规则（需要真机实测）；托管按次：上传长文 → WPS 原生可编辑 `.pptx`，含账号与在线支付。
 
 ## <img src="https://api.iconify.design/tabler/alert-triangle.svg?color=%236b7280" width="20" height="20" alt=""> 已知限制
 
 - **WPS 渲染没有被自动验证。** `verify` 只复核 `.pptx` 里的 OOXML 属性，不渲染、不驱动 WPS 进程。目标版本区间是 WPS Office 2019 及以上（含 WPS 365），这是声明范围而不是实测结论。
-- **画布尺寸沿用 python-pptx 内置母版的 10 × 7.5 英寸（4:3）。** v0.1 不支持 16:9。
+- **画布尺寸沿用 python-pptx 内置母版的 10 × 7.5 英寸（4:3）。** 目前不支持 16:9。
 - **只吃 markdown / txt / docx。** PDF、图片、视频不做。
 - **只做中文版式。** 不含日文 / 韩文的标点与版式规则。
 - **不生成图片、数据图表、音频旁白、转场动画。** 也不做可视化模板编辑器与外部模板导入。
@@ -285,7 +292,7 @@ v0.1 没有账号体系也没有在线支付，所以走**收款即交付**：�
 | 现象 | 原因 / 处理 |
 | --- | --- |
 | `页序来源` 是 `rules` | 没有 `DEEPSEEK_API_KEY`，或 DeepSeek 调用失败；按括号里的原因处理，或接受规则切分 |
-| `不支持的输入格式` | 输入是 PDF / 图片 / 视频等 v0.1 不吃的格式，先转成 markdown / txt / docx |
+| `不支持的输入格式` | 输入是 PDF / 图片 / 视频等不支持的格式，先转成 markdown / txt / docx |
 | `没有内置模板族` | `--template` 只接受 `report` / `courseware` |
 | 封面标题是文件名 | 文档里没有一级标题（`.txt` 也没有可识别的编号标题行），加一行标题即可 |
 | `verify` 报 `font_alias` warn | 稿子里有别名表外的字体；把该字体补进别名表，或改稿子里的字体名 |

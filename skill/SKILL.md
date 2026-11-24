@@ -47,11 +47,13 @@ paiban build 课程稿.md -o 课件.pptx --template courseware
 
 ```bash
 paiban verify 课件.pptx
+paiban verify 课件.pptx --json   # 同一份报告的机器可读版本，stdout 只有 JSON
 ```
 
 复核 `.pptx` 里的 OOXML 属性：字体别名是否解析、标点挤压是否应用、首行缩进与行距是否达标、
 避头尾是否开启、有没有残留图片兜底。判定基准是内置中文版式规范（首行缩进 2 字符、行距 1.5、
 避头尾开启、无图片兜底）；给别的工具（例如 ppt-master）生成的 pptx 跑一次，差异会直接显示出来。
+`--json` 的退出码与文本模式一致（全 `ok` 0，有 `warn` 1），适合接进流水线读 `.ok` 与 `findings`。
 
 ### 3. fix：给已有 deck 补版式
 

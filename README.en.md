@@ -144,17 +144,24 @@ Slide order comes from the document structure: the cover uses the document title
 ```bash
 paiban verify 课件.pptx                 # judged against the built-in Chinese typography spec
 paiban verify 课件.pptx -t courseware   # judged against one template family's parameters
+paiban verify 课件.pptx --json          # machine-readable JSON report
 ```
 
 | check | What it reads | What `warn` means |
 | --- | --- | --- |
 | `font_alias` | East Asian font slot of Chinese runs | A Chinese run has no East Asian slot, or its font is not in the alias table |
-| `punct_compress` | Paragraphs with consecutive full-width punctuation | A paragraph that should be compressed has no negative character spacing |
+| `punct_compress` | Paragraphs with consecutive full-width punctuation | The punctuation that should be compressed carries no negative spacing (a negative value elsewhere in the paragraph does not count) |
 | `paragraph_layout` | First-line indent / line spacing / alignment | Indent is not two characters, spacing is not 1.5, or alignment disagrees with the template |
 | `kinsoku` | `eaLnBrk` | A paragraph does not explicitly enable East Asian line breaking and kinsoku |
 | `real_shapes` | Placeholders and pictures | A slide has no placeholder, or the deck contains pictures |
 
 Exit code is 0 when every check is `ok` and 1 when anything warns, so it can gate CI or a delivery step. Point it at a `.pptx` produced by another tool and the differences show up in the report.
+
+`--json` prints the same report as machine-readable JSON (`path` / `scope` / the counts / `ok` / `findings` / `wps_unverified`); stdout carries nothing but JSON and the exit-code semantics are unchanged:
+
+```bash
+paiban verify 课件.pptx --json | jq -e .ok
+```
 
 ### `paiban fix`: add the layout layer to an existing deck
 
@@ -234,7 +241,7 @@ A template family is a JSON file holding both the master/placeholder mapping and
 }
 ```
 
-`layouts` values are master `slide_layout` indices; the keys under `title` / `body` are the typography parameter fields. Omitted fields keep their defaults, and `null` means "do not write this attribute, keep the master's inheritance". The full schema is in the `deck.load_template()` docstring. v0.1 ships these two families and does not import external templates.
+`layouts` values are master `slide_layout` indices; the keys under `title` / `body` are the typography parameter fields. Omitted fields keep their defaults, and `null` means "do not write this attribute, keep the master's inheritance". The full schema is in the `deck.load_template()` docstring. It ships these two families and does not import external templates.
 
 ## <img src="https://api.iconify.design/tabler/currency-yen.svg?color=%236b7280" width="20" height="20" alt=""> Pricing
 
@@ -249,22 +256,22 @@ A template family is this product's unit of value: one JSON file is one master m
 | Single family license | ¥299 / family |
 | All-families license (individual / small organisation) | ¥999 |
 
-v0.1 has no accounts and no online payment, so the sale is **pay-and-receive**: order on 面包多 / 爱发电 / 知识星球, pay by WeChat or Alipay, and receive the family zip plus an activation note (drop it into `src/paiban/templates/` and it is reachable through `--template`). Corporate trainers and training providers are the first target buyers; open an issue describing your setting for per-seat or per-project pricing.
+There are no accounts and no online payment yet, so the sale is **pay-and-receive**: order on 面包多 / 爱发电 / 知识星球, pay by WeChat or Alipay, and receive the family zip plus an activation note (drop it into `src/paiban/templates/` and it is reachable through `--template`). Corporate trainers and training providers are the first target buyers; open an issue describing your setting for per-seat or per-project pricing.
 
 ### 2. Hosted per-run (v0.3, not live yet)
 
-Trainers and institutions that would rather not install anything or manage a key will be able to upload a long document and get a WPS-native, editable `.pptx` back. Planned pricing is ¥2 per document, ¥99 / month for trainers, ¥99 / seat / month for institutions, on Alibaba Cloud Function Compute with WeChat Pay. **This does not exist yet** — v0.1 is a local CLI only, and until the hosted tier ships the only thing you can pay for is a template family pack.
+Trainers and institutions that would rather not install anything or manage a key will be able to upload a long document and get a WPS-native, editable `.pptx` back. Planned pricing is ¥2 per document, ¥99 / month for trainers, ¥99 / seat / month for institutions, on Alibaba Cloud Function Compute with WeChat Pay. **This does not exist yet** — it is a local CLI only, and until the hosted tier ships the only thing you can pay for is a template family pack.
 
 ## <img src="https://api.iconify.design/tabler/map-2.svg?color=%236b7280" width="20" height="20" alt=""> Roadmap
 
-- **v0.1 (current)** — the Chinese typography engine written to OOXML attributes, long document → deck, the WPS round-trip checklist, a bilingual README, and an agent Skill. Golden attribute regression is green.
-- **v0.2** — more template families; punctuation compression rules extended for WPS version differences; machine-readable `verify` output (JSON) so it can gate a delivery pipeline.
-- **v0.3** — hosted per-run: upload a long document, get a WPS-native, editable `.pptx`, with accounts and online payment.
+- **v0.1** — the Chinese typography engine written to OOXML attributes, long document → deck, the WPS round-trip checklist, a bilingual README, and an agent Skill. Golden attribute regression is green.
+- **v0.2 (current)** — three reproduced defects fixed: the six-bullets-per-slide cap now also applies on the model path, a numbered list in a `.txt` is no longer parsed as section headings, and `verify`'s punctuation check only credits the runs that actually carry the punctuation; `verify --json` emits a machine-readable report for a delivery pipeline; the recorded demo artifact and the site meta are now version-locked to `pyproject.toml`.
+- **v0.3** — more template families; punctuation compression rules extended for WPS version differences (needs measurement on real WPS builds); hosted per-run: upload a long document, get a WPS-native, editable `.pptx`, with accounts and online payment.
 
 ## <img src="https://api.iconify.design/tabler/alert-triangle.svg?color=%236b7280" width="20" height="20" alt=""> Known limitations
 
 - **WPS rendering is not verified automatically.** `verify` only reads the OOXML attributes in the `.pptx`; it does not render and does not drive a WPS process. The target range is WPS Office 2019 and later (including WPS 365) — a declared range, not a measured result.
-- **The canvas keeps python-pptx's built-in master size of 10 × 7.5 inches (4:3).** v0.1 does not do 16:9.
+- **The canvas keeps python-pptx's built-in master size of 10 × 7.5 inches (4:3).** It does not do 16:9.
 - **Input is markdown / txt / docx only.** No PDF, images or video.
 - **Chinese typography only.** No Japanese or Korean punctuation and layout rules.
 - **No images, data charts, narration audio or transitions.** No visual template editor and no external template import either.
@@ -287,7 +294,7 @@ These five steps have to be done by hand in WPS; `verify` cannot replace them:
 | Symptom | Cause / fix |
 | --- | --- |
 | `页序来源` reads `rules` | No `DEEPSEEK_API_KEY`, or the DeepSeek call failed; act on the reason in parentheses, or accept rule-based splitting |
-| `不支持的输入格式` (unsupported input format) | The input is a PDF / image / video, which v0.1 does not read; convert it to markdown / txt / docx first |
+| `不支持的输入格式` (unsupported input format) | The input is a PDF / image / video, which it does not read; convert it to markdown / txt / docx first |
 | `没有内置模板族` (no such built-in template family) | `--template` only accepts `report` / `courseware` |
 | The cover title is the file name | The document has no level-1 heading (and no recognisable numbered heading line for `.txt`); add one title line |
 | `verify` reports a `font_alias` warning | The document uses a font outside the alias table; add it to the table or change the font name |

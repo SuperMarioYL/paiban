@@ -1,7 +1,7 @@
 {
-  "recorded_at": "2026-10-22",
+  "recorded_at": "2026-11-25",
   "package": "paiban",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "platform": "Darwin arm64 / Python 3.12.13",
   "input": {
     "path": "fixtures/sample-longdoc.md",
